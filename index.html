@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>SportGenius AI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101827;
+      color: #f3f6fc;
+    }
+    header {
+      padding: 24px 18px;
+      background: #182439;
+      border-bottom: 1px solid #30415b;
+    }
+    header h1 { margin: 0 0 8px; font-size: 27px; }
+    header p { margin: 0; color: #b8c6dc; }
+    main { padding: 18px; max-width: 760px; margin: auto; }
+    .notice {
+      padding: 12px;
+      border-radius: 10px;
+      background: #3a2f17;
+      color: #ffdf91;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .tabs { display: flex; gap: 8px; margin: 18px 0; }
+    button {
+      border: 0;
+      border-radius: 9px;
+      padding: 12px 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tab { flex: 1; background: #26364e; color: white; }
+    .tab.active { background: #38bdf8; color: #082032; }
+    .panel {
+      background: #182439;
+      border: 1px solid #30415b;
+      border-radius: 14px;
+      padding: 17px;
+      margin-bottom: 14px;
+    }
+    h2 { font-size: 19px; margin-top: 0; }
+    label { display: block; margin: 12px 0 6px; color: #c7d4e8; }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #40516b;
+      background: #101827;
+      color: white;
+      font-size: 16px;
+    }
+    .primary { width: 100%; margin-top: 14px; background: #38bdf8; color: #082032; }
+    .result { margin-top: 14px; line-height: 1.7; }
+    .bar { height: 8px; background: #34445b; border-radius: 8px; overflow: hidden; }
+    .fill { height: 100%; background: #38bdf8; }
+    .muted { color: #aab9ce; font-size: 13px; }
+    footer { padding: 22px; text-align: center; color: #aab9ce; font-size: 12px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏆 SportGenius AI</h1>
+    <p>Analítica deportiva · Fútbol y NBA</p>
+  </header>
+  <main>
+    <div class="notice">
+      MODO PROTOTIPO: las probabilidades generadas aquí son demostrativas,
+      no predicciones basadas en datos deportivos en vivo.
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" id="footballTab" onclick="showSport('football')">⚽ Fútbol</button>
+      <button class="tab" id="nbaTab" onclick="showSport('nba')">🏀 NBA</button>
+    </div>
+
+    <section class="panel" id="footballPanel">
+      <h2>Predicción de fútbol</h2>
+      <label for="home">Equipo local</label>
+      <input id="home" placeholder="Ej. Real Madrid" maxlength="60">
+      <label for="away">Equipo visitante</label>
+      <input id="away" placeholder="Ej. Barcelona" maxlength="60">
+      <button class="primary" onclick="predictFootball()">Calcular demostración</button>
+      <div class="result" id="footballResult" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="nbaPanel" hidden>
+      <h2>Predicción NBA</h2>
+      <label for="teamA">Equipo A</label>
+      <input id="teamA" placeholder="Ej. Miami Heat" maxlength="60">
+      <label for="teamB">Equipo B</label>
+      <input id="teamB" placeholder="Ej. Boston Celtics" maxlength="60">
+      <button class="primary" onclick="predictNBA()">Calcular demostración</button>
+      <div class="result" id="nbaResult" aria-live="polite"></div>
+    </section>
+
+    <section class="panel">
+      <h2>📊 Historial local</h2>
+      <p class="muted">Las demostraciones se guardan en este navegador, si el almacenamiento está disponible.</p>
+      <button class="tab" onclick="showHistory()">Ver historial</button>
+      <button class="tab" onclick="clearHistory()">Borrar historial</button>
+      <div id="history" class="result" aria-live="polite"></div>
+    </section>
+  </main>
+  <footer>SportGenius AI · Proyecto en desarrollo · Sin garantías de resultados deportivos</footer>
+
+  <script>
+    function showSport(sport) {
+      const football = sport === 'football';
+      document.getElementById('footballPanel').hidden = !football;
+      document.getElementById('nbaPanel').hidden = football;
+      document.getElementById('footballTab').classList.toggle('active', football);
+      document.getElementById('nbaTab').classList.toggle('active', !football);
+    }
+
+    function savePrediction(text) {
+      try {
+        const history = JSON.parse(localStorage.getItem('sportgenius-history') || '[]');
+        history.unshift({ text, date: new Date().toLocaleString('es-US') });
+        localStorage.setItem('sportgenius-history', JSON.stringify(history.slice(0, 20)));
+      } catch (error) {
+        // La aplicación puede funcionar aunque el navegador bloquee el almacenamiento.
+      }
+    }
+
+    function predictFootball() {
+      const home = document.getElementById('home').value.trim();
+      const away = document.getElementById('away').value.trim();
+      const result = document.getElementById('footballResult');
+      if (!home || !away) {
+        result.textContent = 'Escribe los nombres de los dos equipos.';
+        return;
+      }
+      const homeWin = 25 + Math.floor(Math.random() * 31);
+      const draw = 15 + Math.floor(Math.random() * 21);
+      const awayWin = 100 - homeWin - draw;
+      const text = 'Fútbol: ' + home + ' vs ' + away +
+        ' — Local ' + homeWin + '%, empate ' + draw + '%, visitante ' + awayWin + '%';
+      result.innerHTML = '<p><strong>' + escapeHTML(home) + ': ' + homeWin + '%</strong></p>' +
+        '<div class="bar"><div class="fill" style="width:' + homeWin + '%"></div></div>' +
+        '<p><strong>Empate: ' + draw + '%</strong></p>' +
+        '<div class="bar"><div class="fill" style="width:' + draw + '%"></div></div>' +
+        '<p><strong>' + escapeHTML(away) + ': ' + awayWin + '%</strong></p>' +
+        '<div class="bar"><div class="fill" style="width:' + awayWin + '%"></div></div>' +
+        '<p class="muted">Valores aleatorios de demostración; no representan una estimación real.</p>';
+      savePrediction(text);
+    }
+
+    function predictNBA() {
+      const a = document.getElementById('teamA').value.trim();
+      const b = document.getElementById('teamB').value.trim();
+      const result = document.getElementById('nbaResult');
+      if (!a || !b) {
+        result.textContent = 'Escribe los nombres de los dos equipos.';
+        return;
+      }
+      const chance = 35 + Math.floor(Math.random() * 31);
+      const other = 100 - chance;
+      const text = 'NBA: ' + a + ' vs ' + b + ' — ' + a + ' ' + chance + '%, ' + b + ' ' + other + '%';
+      result.innerHTML = '<p><strong>' + escapeHTML(a) + ': ' + chance + '%</strong></p>' +
+        '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
+        '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
+        '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
+        '<p class="muted">Valores aleatorios de demostración; no representan una estimación real.</p>';
+      savePrediction(text);
+    }
+
+    function escapeHTML(value) {
+      return value.replace(/[&<>"']/g, function (char) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+      });
+    }
+
+    function showHistory() {
+      const container = document.getElementById('history');
+      try {
+        const history = JSON.parse(localStorage.getItem('sportgenius-history') || '[]');
+        container.innerHTML = history.length
+          ? history.map(item => '<p>' + escapeHTML(item.date) + '<br>' + escapeHTML(item.text) + '</p>').join('')
+          : '<p>Aún no hay predicciones guardadas.</p>';
+      } catch (error) {
+        container.textContent = 'El almacenamiento no está disponible en este navegador.';
+      }
+    }
+
+    function clearHistory() {
+      try {
+        localStorage.removeItem('sportgenius-history');
+        document.getElementById('history').textContent = 'Historial borrado.';
+      } catch (error) {
+        document.getElementById('history').textContent = 'No se pudo borrar el historial.';
+      }
+    }
+  </script>
+</body>
+</html>
