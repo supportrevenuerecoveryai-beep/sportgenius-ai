@@ -88,7 +88,12 @@
       <label for="home">Equipo local</label>
       <input id="home" placeholder="Ej. Real Madrid" maxlength="60">
       <label for="away">Equipo visitante</label>
-      <input id="away" placeholder="Ej. Barcelona" maxlength="60">
+      <input id="away" placeholder="Ej. Barcelona" maxlength="60"> 
+      <label for="homeGoals">Goles esperados del local (0.1 a 5)</label>
+<input id="homeGoals" type="number" min="0.1" max="5" step="0.1" value="1.5">
+
+<label for="awayGoals">Goles esperados del visitante (0.1 a 5)</label>
+<input id="awayGoals" type="number" min="0.1" max="5" step="0.1" value="1.0">
       <button class="primary" onclick="predictFootball()">Calcular demostración</button>
       <div class="result" id="footballResult" aria-live="polite"></div>
     </section>
