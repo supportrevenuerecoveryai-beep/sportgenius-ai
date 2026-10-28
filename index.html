@@ -138,27 +138,73 @@
     }
 
     function predictFootball() {
-      const home = document.getElementById('home').value.trim();
-      const away = document.getElementById('away').value.trim();
-      const result = document.getElementById('footballResult');
-      if (!home || !away) {
-        result.textContent = 'Escribe los nombres de los dos equipos.';
-        return;
-      }
-      const homeWin = 25 + Math.floor(Math.random() * 31);
-      const draw = 15 + Math.floor(Math.random() * 21);
-      const awayWin = 100 - homeWin - draw;
-      const text = 'Fútbol: ' + home + ' vs ' + away +
-        ' — Local ' + homeWin + '%, empate ' + draw + '%, visitante ' + awayWin + '%';
-      result.innerHTML = '<p><strong>' + escapeHTML(home) + ': ' + homeWin + '%</strong></p>' +
-        '<div class="bar"><div class="fill" style="width:' + homeWin + '%"></div></div>' +
-        '<p><strong>Empate: ' + draw + '%</strong></p>' +
-        '<div class="bar"><div class="fill" style="width:' + draw + '%"></div></div>' +
-        '<p><strong>' + escapeHTML(away) + ': ' + awayWin + '%</strong></p>' +
-        '<div class="bar"><div class="fill" style="width:' + awayWin + '%"></div></div>' +
-        '<p class="muted">Valores aleatorios de demostración; no representan una estimación real.</p>';
-      savePrediction(text);
+    
+function predictFootball() {
+  const home = document.getElementById('home').value.trim();
+  const away = document.getElementById('away').value.trim();
+  const result = document.getElementById('footballResult');
+  const lambdaHome = Number(document.getElementById('homeGoals').value);
+  const lambdaAway = Number(document.getElementById('awayGoals').value);
+
+  if (!home || !away) {
+    result.textContent = 'Escribe los nombres de los dos equipos.';
+    return;
+  }
+
+  if (
+    !Number.isFinite(lambdaHome) ||
+    !Number.isFinite(lambdaAway) ||
+    lambdaHome < 0.1 || lambdaHome > 5 ||
+    lambdaAway < 0.1 || lambdaAway > 5
+  ) {
+    result.textContent = 'Introduce goles esperados entre 0.1 y 5 para ambos equipos.';
+    return;
+  }
+
+  function factorial(n) {
+    let value = 1;
+    for (let i = 2; i <= n; i++) value *= i;
+    return value;
+  }
+
+  function poisson(goals, lambda) {
+    return Math.exp(-lambda) * Math.pow(lambda, goals) / factorial(goals);
+  }
+
+  let homeWin = 0;
+  let draw = 0;
+  let awayWin = 0;
+
+  for (let h = 0; h <= 10; h++) {
+    for (let a = 0; a <= 10; a++) {
+      const probability = poisson(h, lambdaHome) * poisson(a, lambdaAway);
+
+      if (h > a) homeWin += probability;
+      else if (h === a) draw += probability;
+      else awayWin += probability;
     }
+  }
+
+  const total = homeWin + draw + awayWin;
+  const homePct = Math.round(homeWin / total * 1000) / 10;
+  const drawPct = Math.round(draw / total * 1000) / 10;
+  const awayPct = Math.round((1000 - Math.round(homeWin / total * 1000) - Math.round(draw / total * 1000)) / 10);
+
+  const text = 'Fútbol: ' + home + ' vs ' + away +
+    ' — Local ' + homePct + '%, empate ' + drawPct +
+    '%, visitante ' + awayPct + '%';
+
+  result.innerHTML =
+    '<p><strong>' + escapeHTML(home) + ': ' + homePct + '%</strong></p>' +
+    '<div class="bar"><div class="fill" style="width:' + homePct + '%"></div></div>' +
+    '<p><strong>Empate: ' + drawPct + '%</strong></p>' +
+    '<div class="bar"><div class="fill" style="width:' + drawPct + '%"></div></div>' +
+    '<p><strong>' + escapeHTML(away) + ': ' + awayPct + '%</strong></p>' +
+    '<div class="bar"><div class="fill" style="width:' + awayPct + '%"></div></div>' +
+    '<p class="muted">Modelo Poisson con goles esperados introducidos manualmente. Aún no usa estadísticas reales de los equipos.</p>';
+
+  savePrediction(text);
+}
 
     function predictNBA() {
       const a = document.getElementById('teamA').value.trim();
