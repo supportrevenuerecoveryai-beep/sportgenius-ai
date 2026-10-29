@@ -208,24 +208,53 @@ function predictFootball() {
   savePrediction(text);
 }
 
-    function predictNBA() {
-      const a = document.getElementById('teamA').value.trim();
-      const b = document.getElementById('teamB').value.trim();
-      const result = document.getElementById('nbaResult');
-      if (!a || !b) {
-        result.textContent = 'Escribe los nombres de los dos equipos.';
-        return;
-      }
-      const chance = 35 + Math.floor(Math.random() * 31);
-      const other = 100 - chance;
-      const text = 'NBA: ' + a + ' vs ' + b + ' — ' + a + ' ' + chance + '%, ' + b + ' ' + other + '%';
-      result.innerHTML = '<p><strong>' + escapeHTML(a) + ': ' + chance + '%</strong></p>' +
-        '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
-        '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
-        '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
-        '<p class="muted">Valores aleatorios de demostración; no representan una estimación real.</p>';
-      savePrediction(text);
-    }
+    
+function predictNBA() {
+  const a = document.getElementById('teamA').value.trim();
+  const b = document.getElementById('teamB').value.trim();
+  const result = document.getElementById('nbaResult');
+
+  const ratingA = Number(document.getElementById('ratingA').value);
+  const ratingB = Number(document.getElementById('ratingB').value);
+
+  if (!a || !b) {
+    result.textContent = 'Escribe los nombres de los dos equipos.';
+    return;
+  }
+
+  if (
+    !Number.isFinite(ratingA) ||
+    !Number.isFinite(ratingB) ||
+    ratingA < 500 || ratingA > 2500 ||
+    ratingB < 500 || ratingB > 2500
+  ) {
+    result.textContent = 'Las calificaciones Elo deben estar entre 500 y 2500.';
+    return;
+  }
+
+  // Ventaja de local simplificada: 65 puntos Elo.
+  const ventajaLocal = 65;
+  const probA = 1 / (
+    1 + Math.pow(10, (ratingB - (ratingA + ventajaLocal)) / 400)
+  );
+
+  const chance = Math.round(probA * 100);
+  const other = 100 - chance;
+
+  const text = 'NBA: ' + a + ' vs ' + b +
+    ' — ' + a + ' ' + chance + '%, ' +
+    b + ' ' + other + '%';
+
+  result.innerHTML =
+    '<p><strong>' + escapeHTML(a) + ': ' + chance + '%</strong></p>' +
+    '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
+    '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
+    '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
+    '<p class="muted">Modelo Elo simplificado con ventaja de local de 65 puntos. Usa las calificaciones introducidas; no consulta estadísticas reales ni actualiza las calificaciones automáticamente.</p>';
+
+  savePrediction(text);
+}
+
 
     function escapeHTML(value) {
       return value.replace(/[&<>"']/g, function (char) {
