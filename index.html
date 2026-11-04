@@ -252,11 +252,30 @@ function predictNBA() {
     '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
     '<p class="muted">Modelo Elo simplificado con ventaja de local de 65 puntos. Usa las calificaciones introducidas; no consulta estadísticas reales ni actualiza las calificaciones automáticamente.</p>';
 
-  savePrediction(text);
+
+savePrediction(text);
 }
 
+function actualizarElo(ratingA, ratingB, ganoA) {
+  const K = 20;
 
-    function escapeHTML(value) {
+  const esperadoA = 1 / (
+    1 + Math.pow(10, (ratingB - ratingA) / 400)
+  );
+
+  const resultadoA = ganoA ? 1 : 0;
+
+  const nuevoA = ratingA + K * (resultadoA - esperadoA);
+  const nuevoB = ratingB - K * (resultadoA - esperadoA);
+
+  return {
+    ratingA: Math.round(nuevoA),
+    ratingB: Math.round(nuevoB)
+  };
+}
+
+function escapeHTML(value) {
+
       return value.replace(/[&<>"']/g, function (char) {
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
       });
