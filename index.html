@@ -230,6 +230,20 @@ function predictFootball() {
 function predictNBA() {
   const a = document.getElementById('teamA').value.trim();
   const b = document.getElementById('teamB').value.trim();
+const ratingsGuardadas = JSON.parse(
+  localStorage.getItem('sportgenius-elo') || '{}'
+);
+
+const ratingGuardadoA = ratingsGuardadas[a.toLowerCase()];
+const ratingGuardadoB = ratingsGuardadas[b.toLowerCase()];
+
+if (ratingGuardadoA !== undefined) {
+  document.getElementById('ratingA').value = ratingGuardadoA;
+}
+
+if (ratingGuardadoB !== undefined) {
+  document.getElementById('ratingB').value = ratingGuardadoB;
+}
   const result = document.getElementById('nbaResult');
 
   const ratingA = Number(document.getElementById('ratingA').value);
