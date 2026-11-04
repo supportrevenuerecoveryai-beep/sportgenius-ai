@@ -276,20 +276,61 @@ savePrediction(text);
 
 function actualizarElo(ratingA, ratingB, ganoA) {
   const K = 20;
+  const ventajaLocal = 65;
 
   const esperadoA = 1 / (
-    1 + Math.pow(10, (ratingB - ratingA) / 400)
+    1 + Math.pow(
+      10,
+      (ratingB - (ratingA + ventajaLocal)) / 400
+    )
   );
 
   const resultadoA = ganoA ? 1 : 0;
-
-  const nuevoA = ratingA + K * (resultadoA - esperadoA);
-  const nuevoB = ratingB - K * (resultadoA - esperadoA);
+  const cambio = K * (resultadoA - esperadoA);
 
   return {
-    ratingA: Math.round(nuevoA),
-    ratingB: Math.round(nuevoB)
+    ratingA: Math.round(ratingA + cambio),
+    ratingB: Math.round(ratingB - cambio)
   };
+}
+
+function registrarResultadoNBA() {
+  const a = document.getElementById('teamA').value.trim();
+  const b = document.getElementById('teamB').value.trim();
+  const ratingA = Number(document.getElementById('ratingA').value);
+  const ratingB = Number(document.getElementById('ratingB').value);
+  const ganador = document.getElementById('eloWinner').value;
+  const result = document.getElementById('eloResult');
+
+  if (!a || !b) {
+    result.textContent = 'Escribe los dos equipos en la sección NBA.';
+    return;
+  }
+
+  if (
+    !Number.isFinite(ratingA) ||
+    !Number.isFinite(ratingB) ||
+    ratingA < 500 || ratingA > 2500 ||
+    ratingB < 500 || ratingB > 2500
+  ) {
+    result.textContent = 'Las calificaciones deben estar entre 500 y 2500.';
+    return;
+  }
+
+  const nuevos = actualizarElo(
+    ratingA,
+    ratingB,
+    ganador === 'A'
+  );
+
+  document.getElementById('ratingA').value = nuevos.ratingA;
+  document.getElementById('ratingB').value = nuevos.ratingB;
+
+  result.innerHTML =
+    '<p><strong>Calificaciones actualizadas</strong></p>' +
+    '<p>' + escapeHTML(a) + ': ' + nuevos.ratingA + '</p>' +
+    '<p>' + escapeHTML(b) + ': ' + nuevos.ratingB + '</p>' +
+    '<p class="muted">Recuerda: registra solamente partidos finalizados.</p>';
 }
 
 function escapeHTML(value) {
