@@ -108,18 +108,36 @@
 <input id="ratingA" type="number" min="500" max="2500" value="1500">
 <label for="ratingB">Calificación Elo del equipo B</label>
 <input id="ratingB" type="number" min="500" max="2500" value="1500">
-      <button class="primary" onclick="predictNBA()">Calcular demostración</button>
-      <div class="result" id="nbaResult" aria-live="polite"></div>
-    </section>
+      <button class="primary" onclick="predictNBA()">Calcular demostración</button>    
+<div class="result" id="nbaResult" aria-live="polite"></div>
+</section>
 
-    <section class="panel">
-      <h2>📊 Historial local</h2>
-      <p class="muted">Las demostraciones se guardan en este navegador, si el almacenamiento está disponible.</p>
-      <button class="tab" onclick="showHistory()">Ver historial</button>
-      <button class="tab" onclick="clearHistory()">Borrar historial</button>
-      <div id="history" class="result" aria-live="polite"></div>
-    </section>
+<section class="panel">
+  <h2>Actualizar calificaciones NBA</h2>
+  <p class="muted">Registra el resultado final para actualizar las calificaciones Elo.</p>
+
+  <label for="eloWinner">Equipo ganador</label>
+  <select id="eloWinner">
+    <option value="A">Equipo A</option>
+    <option value="B">Equipo B</option>
+  </select>
+
+  <button class="primary" onclick="registrarResultadoNBA()">
+    Registrar resultado
+  </button>
+
+  <div class="result" id="eloResult" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+  <h2>📊 Historial local</h2>
+  <p class="muted">Las demostraciones se guardan en este navegador, si el almacenamiento está disponible.</p>
+  <button class="tab" onclick="showHistory()">Ver historial</button>
+  <button class="tab" onclick="clearHistory()">Borrar historial</button>
+  <div id="history" class="result" aria-live="polite"></div>
+</section>
   </main>
+  
   <footer>SportGenius AI · Proyecto en desarrollo · Sin garantías de resultados deportivos</footer>
 
   <script>
