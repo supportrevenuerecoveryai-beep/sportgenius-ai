@@ -337,7 +337,17 @@ function registrarResultadoNBA() {
 
   document.getElementById('ratingA').value = nuevos.ratingA;
   document.getElementById('ratingB').value = nuevos.ratingB;
+const ratingsGuardadas = JSON.parse(
+  localStorage.getItem('sportgenius-elo') || '{}'
+);
 
+ratingsGuardadas[a.toLowerCase()] = nuevos.ratingA;
+ratingsGuardadas[b.toLowerCase()] = nuevos.ratingB;
+
+localStorage.setItem(
+  'sportgenius-elo',
+  JSON.stringify(ratingsGuardadas)
+);
   result.innerHTML =
     '<p><strong>Calificaciones actualizadas</strong></p>' +
     '<p>' + escapeHTML(a) + ': ' + nuevos.ratingA + '</p>' +
