@@ -226,43 +226,33 @@ function predictFootball() {
   savePrediction(text);
 }
 
-    
 function predictNBA() {
   const a = document.getElementById('teamA').value.trim();
   const b = document.getElementById('teamB').value.trim();
-const ratingsGuardadas = JSON.parse(
-  localStorage.getItem('sportgenius-elo') || '{}'
-);
-
-const ratingGuardadoA = ratingsGuardadas[a.toLowerCase()];
-const ratingGuardadoB = ratingsGuardadas[b.toLowerCase()];
-
-if (ratingGuardadoA !== undefined) {
-  document.getElementById('ratingA').value = ratingGuardadoA;
-}
-
-if (ratingGuardadoB !== undefined) {
-  document.getElementById('ratingB').value = ratingGuardadoB;
-}
   const result = document.getElementById('nbaResult');
 
-  const ratingA = Number(document.getElementById('ratingA').value);
-  const ratingB = Number(document.getElementById('ratingB').value);
-const ratingsGuardadas = JSON.parse(
-  localStorage.getItem('sportgenius-elo') || '{}'
-);
-
-ratingsGuardadas[a.toLowerCase()] = nuevos.ratingA;
-ratingsGuardadas[b.toLowerCase()] = nuevos.ratingB;
-
-localStorage.setItem(
-  'sportgenius-elo',
-  JSON.stringify(ratingsGuardadas)
-);
   if (!a || !b) {
     result.textContent = 'Escribe los nombres de los dos equipos.';
     return;
   }
+
+  const ratingsGuardadas = JSON.parse(
+    localStorage.getItem('sportgenius-elo') || '{}'
+  );
+
+  const ratingGuardadoA = ratingsGuardadas[a.toLowerCase()];
+  const ratingGuardadoB = ratingsGuardadas[b.toLowerCase()];
+
+  if (ratingGuardadoA !== undefined) {
+    document.getElementById('ratingA').value = ratingGuardadoA;
+  }
+
+  if (ratingGuardadoB !== undefined) {
+    document.getElementById('ratingB').value = ratingGuardadoB;
+  }
+
+  const ratingA = Number(document.getElementById('ratingA').value);
+  const ratingB = Number(document.getElementById('ratingB').value);
 
   if (
     !Number.isFinite(ratingA) ||
@@ -274,7 +264,6 @@ localStorage.setItem(
     return;
   }
 
-  // Ventaja de local simplificada: 65 puntos Elo.
   const ventajaLocal = 65;
   const probA = 1 / (
     1 + Math.pow(10, (ratingB - (ratingA + ventajaLocal)) / 400)
@@ -292,12 +281,11 @@ localStorage.setItem(
     '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
     '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
     '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
-    '<p class="muted">Modelo Elo simplificado con ventaja de local de 65 puntos. Usa las calificaciones introducidas; no consulta estadísticas reales ni actualiza las calificaciones automáticamente.</p>';
+    '<p class="muted">Modelo Elo simplificado con ventaja local de 65 puntos. Utiliza las calificaciones guardadas o introducidas manualmente.</p>';
 
-
-savePrediction(text);
+  savePrediction(text);
 }
-
+    
 function actualizarElo(ratingA, ratingB, ganoA) {
   const K = 20;
   const ventajaLocal = 65;
