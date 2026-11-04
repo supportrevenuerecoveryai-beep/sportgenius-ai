@@ -110,8 +110,23 @@
 <input id="ratingB" type="number" min="500" max="2500" value="1500">
       <button class="primary" onclick="predictNBA()">Calcular demostración</button>    
 <div class="result" id="nbaResult" aria-live="polite"></div>
-</section>
+<hr>
 
+<h3>Partidos NBA reales</h3>
+
+<p class="muted">
+  Consulta el calendario y los resultados actualizados.
+</p>
+
+<button class="primary" onclick="cargarPartidosNBA()">
+  Consultar partidos NBA
+</button>
+
+<div class="result" id="nbaGames" aria-live="polite">
+  Todavía no has consultado los partidos.
+</div>      
+</section>
+    
 <section class="panel">
   <h2>Actualizar calificaciones NBA</h2>
   <p class="muted">Registra el resultado final para actualizar las calificaciones Elo.</p>
