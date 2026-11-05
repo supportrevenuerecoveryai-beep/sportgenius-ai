@@ -398,8 +398,7 @@ resultado.textContent += ' IDs: ' + idA + ' y ' + idB;
       'No se pudieron consultar las estadísticas. Inténtalo nuevamente.';
     }
  }
-  
-   
+     
 async function predictNBA() {
   const campoA = document.getElementById('teamA');
   const campoB = document.getElementById('teamB');
@@ -518,25 +517,30 @@ async function predictNBA() {
       'Inténtalo nuevamente.';
   }
 }
-  
-   
+ 
 async function cargarPartidosNBA() {
   const container = document.getElementById('nbaGames');
 
-  container.textContent = 'Consultando calendario NBA...';
+  container.textContent = 'Consultando próximos 7 días de NBA...';
 
   try {
-    const ahora = new Date();
+    const formatearFecha = fecha => {
+      const año = fecha.getFullYear();
+      const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+      const dia = String(fecha.getDate()).padStart(2, '0');
+      return año + mes + dia;
+    };
 
-    const año = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
+    const inicio = new Date();
+    const fin = new Date(inicio);
+    fin.setDate(fin.getDate() + 6);
 
-    const fecha = año + mes + dia;
+    const fechaInicio = formatearFecha(inicio);
+    const fechaFin = formatearFecha(fin);
 
     const url =
       'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=' +
-      fecha;
+      fechaInicio + '-' + fechaFin;
 
     const respuesta = await fetch(url);
 
@@ -548,7 +552,8 @@ async function cargarPartidosNBA() {
     const partidos = datos.events || [];
 
     if (partidos.length === 0) {
-      container.textContent = 'No hay partidos NBA programados para hoy.';
+      container.textContent =
+        'No hay partidos NBA programados en los próximos 7 días.';
       return;
     }
 
@@ -558,42 +563,56 @@ async function cargarPartidosNBA() {
       const visitante = equipos.find(e => e.homeAway === 'away');
       const local = equipos.find(e => e.homeAway === 'home');
 
-      const tipo = partido.status.type;
-      const estado = tipo.state === 'in'
+      if (!visitante || !local) return '';
+
+      const estadoPartido = partido.status.type.state;
+
+      const estado = estadoPartido === 'in'
         ? 'EN VIVO'
-        : tipo.state === 'post'
+        : estadoPartido === 'post'
           ? 'FINALIZADO'
           : 'PROGRAMADO';
 
-      const hora = new Date(partido.date).toLocaleTimeString('es-US', {
+      const fechaPartido = new Date(partido.date);
+
+      const fechaTexto = fechaPartido.toLocaleDateString('es-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+
+      const hora = fechaPartido.toLocaleTimeString('es-US', {
         hour: 'numeric',
         minute: '2-digit'
       });
 
       return '<div class="game">' +
-  '<strong>' + escapeHTML(visitante.team.displayName) +
-  ' vs ' + escapeHTML(local.team.displayName) + '</strong>' +
-  '<p>Estado: ' + estado + '</p>' +
-  '<p>Hora: ' + escapeHTML(hora) + '</p>' +
-  '<p>Marcador: ' +
-  escapeHTML(visitante.score || '0') + ' - ' +
-escapeHTML(local.score || '0') + '</p>' +
-'<button type="button" class="primary" ' +
-'onclick="usarPartidoNBA(this)" ' +
-'data-local="' + escapeHTML(local.team.displayName) + '" ' +
-'data-visitante="' + escapeHTML(visitante.team.displayName) + '" ' +
-'data-local-id="' + escapeHTML(local.team.id) + '" ' +
-'data-visitante-id="' + escapeHTML(visitante.team.id) + '">' +
-'Usar en predictor' +
-'</button>' +
-'</div>';
+        '<strong>' + escapeHTML(visitante.team.displayName) +
+        ' vs ' + escapeHTML(local.team.displayName) + '</strong>' +
+        '<p>Fecha: ' + escapeHTML(fechaTexto) + '</p>' +
+        '<p>Estado: ' + estado + '</p>' +
+        '<p>Hora: ' + escapeHTML(hora) + '</p>' +
+        '<p>Marcador: ' +
+        escapeHTML(visitante.score || '0') + ' - ' +
+        escapeHTML(local.score || '0') + '</p>' +
+        '<button type="button" class="primary" ' +
+        'onclick="usarPartidoNBA(this)" ' +
+        'data-local="' + escapeHTML(local.team.displayName) + '" ' +
+        'data-visitante="' + escapeHTML(visitante.team.displayName) + '" ' +
+        'data-local-id="' + escapeHTML(local.team.id) + '" ' +
+        'data-visitante-id="' + escapeHTML(visitante.team.id) + '">' +
+        'Usar en predictor' +
+        '</button>' +
+        '</div>';
     }).join('');
 
   } catch (error) {
     container.textContent =
       'No se pudieron cargar los partidos. Comprueba tu conexión e inténtalo nuevamente.';
   }
-        }
+}
+ 
+   
 function actualizarElo(ratingA, ratingB, ganoA) {
   const K = 20;
   const ventajaLocal = 65;
