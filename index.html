@@ -352,14 +352,20 @@ async function cargarPartidosNBA() {
       });
 
       return '<div class="game">' +
-        '<strong>' + escapeHTML(visitante.team.displayName) +
-        ' vs ' + escapeHTML(local.team.displayName) + '</strong>' +
-        '<p>Estado: ' + estado + '</p>' +
-        '<p>Hora: ' + escapeHTML(hora) + '</p>' +
-        '<p>Marcador: ' +
-        escapeHTML(visitante.score || '0') + ' - ' +
-        escapeHTML(local.score || '0') + '</p>' +
-        '</div>';
+  '<strong>' + escapeHTML(visitante.team.displayName) +
+  ' vs ' + escapeHTML(local.team.displayName) + '</strong>' +
+  '<p>Estado: ' + estado + '</p>' +
+  '<p>Hora: ' + escapeHTML(hora) + '</p>' +
+  '<p>Marcador: ' +
+  escapeHTML(visitante.score || '0') + ' - ' +
+  escapeHTML(local.score || '0') + '</p>' +
+  '<button type="button" class="primary" ' +
+  'onclick="usarPartidoNBA(this)" ' +
+  'data-local="' + escapeHTML(local.team.displayName) + '" ' +
+  'data-visitante="' + escapeHTML(visitante.team.displayName) + '">' +
+  'Usar en predictor' +
+  '</button>' +
+  '</div>';
     }).join('');
 
   } catch (error) {
