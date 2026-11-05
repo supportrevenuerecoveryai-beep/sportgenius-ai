@@ -266,6 +266,70 @@ function usarPartidoNBA(boton) {
     block: 'start'
   });
 }
+ async function obtenerRendimientoEquipoNBA(teamId) {
+  const url =
+    'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/' +
+    encodeURIComponent(teamId) + '/schedule';
+
+  const respuesta = await fetch(url);
+
+  if (!respuesta.ok) {
+    throw new Error('No se pudo consultar el calendario del equipo.');
+  }
+
+  const datos = await respuesta.json();
+
+  const partidos = (datos.events || [])
+    .filter(partido => partido.status?.type?.state === 'post')
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 10);
+
+  let victorias = 0;
+  let derrotas = 0;
+  let puntosFavor = 0;
+  let puntosContra = 0;
+
+  partidos.forEach(partido => {
+    const equipos = partido.competitions[0].competitors;
+
+    const equipo = equipos.find(
+      e => String(e.id || e.team.id) === String(teamId)
+    );
+
+    const rival = equipos.find(
+      e => String(e.id || e.team.id) !== String(teamId)
+    );
+
+    if (!equipo || !rival) return;
+
+    const anotados = Number(equipo.score);
+    const recibidos = Number(rival.score);
+
+    if (!Number.isFinite(anotados) ||
+        !Number.isFinite(recibidos)) return;
+
+    puntosFavor += anotados;
+    puntosContra += recibidos;
+
+    if (equipo.winner) {
+      victorias++;
+    } else {
+      derrotas++;
+    }
+  });
+
+  return {
+    partidos: victorias + derrotas,
+    victorias,
+    derrotas,
+    puntosFavor: victorias + derrotas
+      ? Math.round(puntosFavor / (victorias + derrotas))
+      : 0,
+    puntosContra: victorias + derrotas
+      ? Math.round(puntosContra / (victorias + derrotas))
+      : 0
+  };
+}
     function predictNBA() {
    const a = document.getElementById('teamA').value.trim();
   const b = document.getElementById('teamB').value.trim();
