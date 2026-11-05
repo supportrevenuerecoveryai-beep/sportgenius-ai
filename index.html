@@ -240,22 +240,24 @@ function predictFootball() {
 
   savePrediction(text);
 }
-
-function predictNBA() {
- function usarPartidoNBA(boton) {
+function usarPartidoNBA(boton) {
   const local = boton.dataset.local;
   const visitante = boton.dataset.visitante;
-document.getElementById('teamA').value = local;
+
+  document.getElementById('teamA').value = local;
   document.getElementById('teamB').value = visitante;
+
   document.getElementById('nbaResult').textContent =
     'Partido seleccionado: ' + local + ' vs ' + visitante +
     '. Ahora puedes calcular la predicción.';
- document.getElementById('nbaPanel').scrollIntoView({
+
+  document.getElementById('nbaPanel').scrollIntoView({
     behavior: 'smooth',
     block: 'start'
   });
-    }
-  const a = document.getElementById('teamA').value.trim();
+}
+function predictNBA() {
+   const a = document.getElementById('teamA').value.trim();
   const b = document.getElementById('teamB').value.trim();
   const result = document.getElementById('nbaResult');
 
