@@ -287,14 +287,18 @@ function usarPartidoNBA(boton) {
   const respuesta = await fetch(url);
 
   if (!respuesta.ok) {
-    throw new Error('No se pudo consultar el calendario del equipo.');
+    throw new Error('No se pudo consultar el calendario.');
   }
 
   const datos = await respuesta.json();
 
   const partidos = (datos.events || [])
-    .filter(partido => partido.status?.type?.state === 'post')
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .filter(partido =>
+      partido.status?.type?.state === 'post'
+    )
+    .sort((a, b) =>
+      new Date(b.date) - new Date(a.date)
+    )
     .slice(0, 10);
 
   let victorias = 0;
@@ -303,20 +307,20 @@ function usarPartidoNBA(boton) {
   let puntosContra = 0;
 
   partidos.forEach(partido => {
-    const equipos = partido.competitions[0].competitors;
+    const equipos = partido.competitions?.[0]?.competitors || [];
 
     const equipo = equipos.find(
-      e => String(e.id || e.team.id) === String(teamId)
+      e => String(e.team?.id) === String(teamId)
     );
 
     const rival = equipos.find(
-      e => String(e.id || e.team.id) !== String(teamId)
+      e => String(e.team?.id) !== String(teamId)
     );
 
     if (!equipo || !rival) return;
 
-    const anotados = Number(equipo.score);
-    const recibidos = Number(rival.score);
+    const anotados = Number(equipo.score?.value ?? equipo.score);
+    const recibidos = Number(rival.score?.value ?? rival.score);
 
     if (!Number.isFinite(anotados) ||
         !Number.isFinite(recibidos)) return;
@@ -331,18 +335,16 @@ function usarPartidoNBA(boton) {
     }
   });
 
+  const total = victorias + derrotas;
+
   return {
-    partidos: victorias + derrotas,
+    partidos: total,
     victorias,
     derrotas,
-    puntosFavor: victorias + derrotas
-      ? Math.round(puntosFavor / (victorias + derrotas))
-      : 0,
-    puntosContra: victorias + derrotas
-      ? Math.round(puntosContra / (victorias + derrotas))
-      : 0
+    puntosFavor: total ? Math.round(puntosFavor / total) : 0,
+    puntosContra: total ? Math.round(puntosContra / total) : 0
   };
-}
+ }
  async function consultarRendimientoNBA() {
   const campoA = document.getElementById('teamA');
   const campoB = document.getElementById('teamB');
