@@ -366,7 +366,7 @@ function usarPartidoNBA(boton) {
   }
 
   resultado.textContent = 'Consultando los últimos 10 partidos de ambos equipos...';
-
+resultado.textContent += ' IDs: ' + idA + ' y ' + idB;
   try {
     const [rendimientoA, rendimientoB] = await Promise.all([
       obtenerRendimientoEquipoNBA(idA),
