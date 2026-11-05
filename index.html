@@ -293,14 +293,17 @@ function usarPartidoNBA(boton) {
   const datos = await respuesta.json();
 
   const partidos = (datos.events || [])
-    .filter(partido =>
-      partido.status?.type?.state === 'post'
-    )
-    .sort((a, b) =>
-      new Date(b.date) - new Date(a.date)
-    )
-    .slice(0, 10);
+  .filter(partido => {
+    const estado =
+      partido.status?.type?.state ||
+      partido.competitions?.[0]?.status?.type?.state;
 
+    return estado === 'post';
+  })
+  .sort((a, b) =>
+    new Date(b.date) - new Date(a.date)
+  )
+  .slice(0, 10);
   let victorias = 0;
   let derrotas = 0;
   let puntosFavor = 0;
