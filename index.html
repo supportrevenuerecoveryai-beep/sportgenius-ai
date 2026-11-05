@@ -399,10 +399,14 @@ resultado.textContent += ' IDs: ' + idA + ' y ' + idB;
     }
  }
   
-   function predictNBA() {
-   const a = document.getElementById('teamA').value.trim();
-  const b = document.getElementById('teamB').value.trim();
+   
+async function predictNBA() {
+  const campoA = document.getElementById('teamA');
+  const campoB = document.getElementById('teamB');
   const result = document.getElementById('nbaResult');
+
+  const a = campoA.value.trim();
+  const b = campoB.value.trim();
 
   if (!a || !b) {
     result.textContent = 'Escribe los nombres de los dos equipos.';
@@ -433,31 +437,88 @@ resultado.textContent += ' IDs: ' + idA + ' y ' + idB;
     ratingA < 500 || ratingA > 2500 ||
     ratingB < 500 || ratingB > 2500
   ) {
-    result.textContent = 'Las calificaciones Elo deben estar entre 500 y 2500.';
+    result.textContent =
+      'Las calificaciones Elo deben estar entre 500 y 2500.';
     return;
   }
 
-  const ventajaLocal = 65;
-  const probA = 1 / (
-    1 + Math.pow(10, (ratingB - (ratingA + ventajaLocal)) / 400)
-  );
+  result.textContent = 'Calculando y consultando estadísticas ESPN...';
 
-  const chance = Math.round(probA * 100);
-  const other = 100 - chance;
+  try {
+    const ventajaLocal = 65;
 
-  const text = 'NBA: ' + a + ' vs ' + b +
-    ' — ' + a + ' ' + chance + '%, ' +
-    b + ' ' + other + '%';
+    const probElo = 1 / (
+      1 + Math.pow(10, (ratingB - (ratingA + ventajaLocal)) / 400)
+    );
 
-  result.innerHTML =
-    '<p><strong>' + escapeHTML(a) + ': ' + chance + '%</strong></p>' +
-    '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
-    '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
-    '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
-    '<p class="muted">Modelo Elo simplificado con ventaja local de 65 puntos. Utiliza las calificaciones guardadas o introducidas manualmente.</p>';
+    let probFinal = probElo;
+    let detalle = 'Predicción basada solamente en Elo.';
 
-  savePrediction(text);
+    const idA = campoA.dataset.espnId;
+    const idB = campoB.dataset.espnId;
+
+    if (idA && idB) {
+      const [rendimientoA, rendimientoB] = await Promise.all([
+        obtenerRendimientoEquipoNBA(idA),
+        obtenerRendimientoEquipoNBA(idB)
+      ]);
+
+      if (!rendimientoA.partidos || !rendimientoB.partidos) {
+        throw new Error('No hay suficientes partidos recientes.');
+      }
+
+      const victoriasA =
+        rendimientoA.victorias / rendimientoA.partidos;
+
+      const victoriasB =
+        rendimientoB.victorias / rendimientoB.partidos;
+
+      const diferencialA =
+        rendimientoA.puntosFavor - rendimientoA.puntosContra;
+
+      const diferencialB =
+        rendimientoB.puntosFavor - rendimientoB.puntosContra;
+
+      const puntuacionForma =
+        (victoriasA - victoriasB) * 400 +
+        (diferencialA - diferencialB) * 10;
+
+      const probForma = 1 / (
+        1 + Math.pow(10, -puntuacionForma / 400)
+      );
+
+      probFinal = (probElo * 0.70) + (probForma * 0.30);
+
+      detalle =
+        'Modelo combinado: 70% Elo y 30% rendimiento reciente. ' +
+        'Últimos partidos analizados: ' +
+        rendimientoA.partidos + ' para ' + a + ' y ' +
+        rendimientoB.partidos + ' para ' + b + '.';
+    }
+
+    const chance = Math.round(probFinal * 100);
+    const other = 100 - chance;
+
+    const text = 'NBA: ' + a + ' vs ' + b +
+      ' — ' + a + ' ' + chance + '%, ' +
+      b + ' ' + other + '%. ' + detalle;
+
+    result.innerHTML =
+      '<p><strong>' + escapeHTML(a) + ': ' + chance + '%</strong></p>' +
+      '<div class="bar"><div class="fill" style="width:' + chance + '%"></div></div>' +
+      '<p><strong>' + escapeHTML(b) + ': ' + other + '%</strong></p>' +
+      '<div class="bar"><div class="fill" style="width:' + other + '%"></div></div>' +
+      '<p class="muted">' + escapeHTML(detalle) + '</p>';
+
+    savePrediction(text);
+
+  } catch (error) {
+    result.textContent =
+      'No se pudo completar la predicción con ESPN. ' +
+      'Inténtalo nuevamente.';
+  }
 }
+  
    
 async function cargarPartidosNBA() {
   const container = document.getElementById('nbaGames');
