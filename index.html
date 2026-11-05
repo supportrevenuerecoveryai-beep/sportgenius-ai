@@ -374,14 +374,16 @@ async function cargarPartidosNBA() {
   '<p>Hora: ' + escapeHTML(hora) + '</p>' +
   '<p>Marcador: ' +
   escapeHTML(visitante.score || '0') + ' - ' +
-  escapeHTML(local.score || '0') + '</p>' +
-  '<button type="button" class="primary" ' +
-  'onclick="usarPartidoNBA(this)" ' +
-  'data-local="' + escapeHTML(local.team.displayName) + '" ' +
-  'data-visitante="' + escapeHTML(visitante.team.displayName) + '">' +
-  'Usar en predictor' +
-  '</button>' +
-  '</div>';
+escapeHTML(local.score || '0') + '</p>' +
+'<button type="button" class="primary" ' +
+'onclick="usarPartidoNBA(this)" ' +
+'data-local="' + escapeHTML(local.team.displayName) + '" ' +
+'data-visitante="' + escapeHTML(visitante.team.displayName) + '" ' +
+'data-local-id="' + escapeHTML(local.team.id) + '" ' +
+'data-visitante-id="' + escapeHTML(visitante.team.id) + '">' +
+'Usar en predictor' +
+'</button>' +
+'</div>';
     }).join('');
 
   } catch (error) {
