@@ -343,7 +343,58 @@ function usarPartidoNBA(boton) {
       : 0
   };
 }
-    function predictNBA() {
+ async function consultarRendimientoNBA() {
+  const campoA = document.getElementById('teamA');
+  const campoB = document.getElementById('teamB');
+  const resultado = document.getElementById('nbaPerformance');
+
+  const nombreA = campoA.value.trim();
+  const nombreB = campoB.value.trim();
+
+  const idA = campoA.dataset.espnId;
+  const idB = campoB.dataset.espnId;
+
+  if (!nombreA || !nombreB || !idA || !idB) {
+    resultado.textContent =
+      'Primero selecciona un partido NBA usando el botón Usar en predictor.';
+    return;
+  }
+
+  resultado.textContent = 'Consultando los últimos 10 partidos de ambos equipos...';
+
+  try {
+    const [rendimientoA, rendimientoB] = await Promise.all([
+      obtenerRendimientoEquipoNBA(idA),
+      obtenerRendimientoEquipoNBA(idB)
+    ]);
+
+    if (!rendimientoA.partidos || !rendimientoB.partidos) {
+      resultado.textContent =
+        'No hay suficientes resultados disponibles para uno de los equipos.';
+      return;
+    }
+
+    function mostrarEquipo(nombre, datos) {
+      return '<h4>' + escapeHTML(nombre) + '</h4>' +
+        '<p>Partidos analizados: ' + datos.partidos + '</p>' +
+        '<p>Victorias: ' + datos.victorias +
+        ' | Derrotas: ' + datos.derrotas + '</p>' +
+        '<p>Promedio de puntos anotados: ' + datos.puntosFavor + '</p>' +
+        '<p>Promedio de puntos recibidos: ' + datos.puntosContra + '</p>';
+    }
+
+    resultado.innerHTML =
+      mostrarEquipo(nombreA, rendimientoA) +
+      '<hr>' +
+      mostrarEquipo(nombreB, rendimientoB);
+
+  } catch (error) {
+    resultado.textContent =
+      'No se pudieron consultar las estadísticas. Inténtalo nuevamente.';
+    }
+ }
+  
+   function predictNBA() {
    const a = document.getElementById('teamA').value.trim();
   const b = document.getElementById('teamB').value.trim();
   const result = document.getElementById('nbaResult');
