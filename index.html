@@ -124,13 +124,26 @@
 
 <div class="result" id="nbaGames" aria-live="polite">
   Todavía no has consultado los partidos.
-</div>      
+</div>
+<hr>
+<h3>Rendimiento últimos 10 partidos</h3>
+<p class="muted">
+  Consulta victorias, derrotas y promedios de puntos de ambos equipos.
+</p>
+
+<button class="primary" onclick="consultarRendimientoNBA()">
+  Consultar rendimiento
+</button>
+
+<div class="result" id="nbaPerformance" aria-live="polite">
+  Selecciona un partido para consultar el rendimiento.
+</div>
+
 </section>
-    
+
 <section class="panel">
   <h2>Actualizar calificaciones NBA</h2>
   <p class="muted">Registra el resultado final para actualizar las calificaciones Elo.</p>
-
   <label for="eloWinner">Equipo ganador</label>
   <select id="eloWinner">
     <option value="A">Equipo A</option>
