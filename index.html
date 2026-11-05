@@ -307,7 +307,13 @@ async function cargarPartidosNBA() {
   container.textContent = 'Consultando calendario NBA...';
 
   try {
-    const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const ahora = new Date();
+
+    const año = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+
+    const fecha = año + mes + dia;
 
     const url =
       'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=' +
@@ -316,7 +322,7 @@ async function cargarPartidosNBA() {
     const respuesta = await fetch(url);
 
     if (!respuesta.ok) {
-      throw new Error('No se pudo consultar ESPN.');
+      throw new Error('Error consultando ESPN');
     }
 
     const datos = await respuesta.json();
@@ -333,12 +339,23 @@ async function cargarPartidosNBA() {
       const visitante = equipos.find(e => e.homeAway === 'away');
       const local = equipos.find(e => e.homeAway === 'home');
 
-      const estado = partido.status.type.description;
+      const tipo = partido.status.type;
+      const estado = tipo.state === 'in'
+        ? 'EN VIVO'
+        : tipo.state === 'post'
+          ? 'FINALIZADO'
+          : 'PROGRAMADO';
+
+      const hora = new Date(partido.date).toLocaleTimeString('es-US', {
+        hour: 'numeric',
+        minute: '2-digit'
+      });
 
       return '<div class="game">' +
         '<strong>' + escapeHTML(visitante.team.displayName) +
         ' vs ' + escapeHTML(local.team.displayName) + '</strong>' +
-        '<p>Estado: ' + escapeHTML(estado) + '</p>' +
+        '<p>Estado: ' + estado + '</p>' +
+        '<p>Hora: ' + escapeHTML(hora) + '</p>' +
         '<p>Marcador: ' +
         escapeHTML(visitante.score || '0') + ' - ' +
         escapeHTML(local.score || '0') + '</p>' +
@@ -349,8 +366,7 @@ async function cargarPartidosNBA() {
     container.textContent =
       'No se pudieron cargar los partidos. Comprueba tu conexión e inténtalo nuevamente.';
   }
-    }
-    
+        }
 function actualizarElo(ratingA, ratingB, ganoA) {
   const K = 20;
   const ventajaLocal = 65;
