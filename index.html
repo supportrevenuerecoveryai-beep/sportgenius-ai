@@ -539,9 +539,8 @@ async function cargarPartidosNBA() {
     const fechaFin = formatearFecha(fin);
 
     const url =
-      'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=' +
-      fechaInicio + '-' + fechaFin;
-
+  'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=' +
+  fechaInicio;
     const respuesta = await fetch(url);
 
     if (!respuesta.ok) {
