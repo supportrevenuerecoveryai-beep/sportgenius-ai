@@ -606,9 +606,10 @@ async function cargarPartidosNBA() {
         '</div>';
     }).join('');
 
-  } catch (error) {
-  container.textContent =
-    'Error ESPN: ' + error.message;
+    } catch (error) {
+    container.textContent =
+      'Error ESPN: ' + error.message;
+     }
   }
    
 function actualizarElo(ratingA, ratingB, ganoA) {
