@@ -607,11 +607,9 @@ async function cargarPartidosNBA() {
     }).join('');
 
   } catch (error) {
-    container.textContent =
-      'No se pudieron cargar los partidos. Comprueba tu conexión e inténtalo nuevamente.';
+  container.textContent =
+    'Error ESPN: ' + error.message;
   }
-}
- 
    
 function actualizarElo(ratingA, ratingB, ganoA) {
   const K = 20;
